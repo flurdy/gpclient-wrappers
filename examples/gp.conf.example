@@ -1,7 +1,7 @@
 # Copy to ~/.config/gpclient-wrappers/config (or pass --config). Sourced by bash; all GP_* are exported.
 # $GP_HOME is this repo, $GP_CONFIG_DIR is the directory of this file.
 
-GP_PORTAL=vpn.example.com                     # required
+GP_PORTAL=vpn.example.com                     # required (can also come from the environment)
 #GP_GATEWAY=gateway.example.com               # skip the gateway prompt
 #GP_BROWSER=$GP_HOME/bin/gp-firefox           # SAML browser; default: system default browser
 #GP_FIREFOX_PROFILE=$HOME/.mozilla/firefox/xxxx.profile   # used by gp-firefox
