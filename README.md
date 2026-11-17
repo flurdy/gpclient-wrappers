@@ -80,3 +80,15 @@ Background mode logs to `/var/log/gpclient.log` (root-readable). `gp-connect` ru
 `gpclient` with `sudo -E`; gpclient then runs `bin/gp-dns-script` as root. The config is sourced as
 bash by `gp-connect`, and a HIP executable runs as your user. Only use a config, scripts and HIP
 executable you trust, and read any you did not write.
+
+## References
+
+- [yuezk/GlobalProtect-openconnect](https://github.com/yuezk/GlobalProtect-openconnect): gpclient
+- [bechampion/gohip](https://github.com/bechampion/gohip): HIP report generator
+- [OpenConnect HIP](https://www.infradead.org/openconnect/hip.html): what a HIP report is
+- [vpnc-script](https://www.infradead.org/openconnect/vpnc-script.html): the script `gp-dns-script` wraps
+- [resolvectl](https://www.freedesktop.org/software/systemd/man/latest/resolvectl.html): routing domains and default route
+
+## License
+
+MIT, see [LICENSE](LICENSE).
