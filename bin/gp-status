@@ -3,28 +3,30 @@
 # Exits 0 when connected, 1 when not.
 set -uo pipefail
 
-pid=$(pgrep -x gpclient | head -1)
-if [[ -z $pid ]]; then
-    echo "gpclient: not running"
-    exit 1
-fi
-echo "gpclient: running (pid $pid, up $(ps -o etime= -p "$pid" | tr -d " "))"
-
 cols=${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}
 (( cols > 40 )) || cols=40
 
-# show LABEL VALUE: value in a column, wrapped to the terminal width with a hanging indent
+# show LABEL VALUE [INDENT]: value in a column, wrapped to the terminal width with a hanging indent
 show() {
-    local pad
+    local pad indent=${3-  }
     pad=$(printf '%18s' '')
     printf '%s\n' "$2" | fmt -w $((cols - 18)) |
-        sed "1s/^/$(printf '  %-16s' "$1:")/; 2,\$s/^/$pad/"
+        sed "1s/^/$(printf '%s%-*s' "$indent" $((18 - ${#indent})) "$1:")/; 2,\$s/^/$pad/"
 }
 
+pid=$(pgrep -x gpclient | head -1)
+if [[ -z $pid ]]; then
+    show gpclient "not running" ""
+    exit 1
+fi
+show gpclient running ""
+show pid "$pid"
+show uptime "$(ps -o etime= -p "$pid" | tr -d ' ')"
+
 tuns=$(ip -o link show type tun | awk -F': ' '{print $2}')
-[[ -n $tuns ]] || { echo "tunnel: none yet"; exit 1; }
+[[ -n $tuns ]] || { show tunnel "none yet" ""; exit 1; }
 for dev in $tuns; do
-    ip -br addr show dev "$dev" | awk '{$2 = ""; print}'
+    show "$dev" "$(ip -br addr show dev "$dev" | awk '{$1 = $2 = ""; sub(/^ +/, ""); print}')" ""
     for what in dns domain default-route; do
         show "$what" "$(resolvectl "$what" "$dev" 2>/dev/null | sed 's/^[^:]*: *//' | tr -s ' \n' ' ')"
     done
