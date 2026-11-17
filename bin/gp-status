@@ -13,7 +13,7 @@ echo "gpclient: running (pid $pid)"
 tuns=$(ip -o link show type tun | awk -F': ' '{print $2}')
 [[ -n $tuns ]] || { echo "tunnel: none yet"; exit 1; }
 for dev in $tuns; do
-    ip -br addr show dev "$dev"
+    ip -br addr show dev "$dev" | awk '{$2 = ""; print}'
     for what in dns domain default-route; do
         printf '  %-16s%s\n' "$what:" "$(resolvectl "$what" "$dev" 2>/dev/null | sed 's/^[^:]*: *//' | tr -s ' \n' ' ')"
     done
