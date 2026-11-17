@@ -8,7 +8,7 @@ if [[ -z $pid ]]; then
     echo "gpclient: not running"
     exit 1
 fi
-echo "gpclient: running (pid $pid)"
+echo "gpclient: running (pid $pid, up $(ps -o etime= -p "$pid" | tr -d " "))"
 
 cols=${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}
 (( cols > 40 )) || cols=40
