@@ -10,7 +10,7 @@ GlobalProtect VPNs on Linux.
 ```sh
 mkdir -p ~/.config/gpclient-wrappers
 cp examples/gp.conf.example ~/.config/gpclient-wrappers/config   # edit GP_PORTAL
-make up        # make debug to stay in the terminal, make down to disconnect
+make up        # make run to stay in the terminal, make down to disconnect
 ```
 
 Other projects can call `bin/gp-connect --config <file>` instead of copying it. Settings and

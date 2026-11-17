@@ -1,15 +1,15 @@
-.PHONY: help up debug down check
+.PHONY: help up run down check
 
 help:
 	@echo "make up      connect in the background (needs ~/.config/gpclient-wrappers/config)"
-	@echo "make debug   connect in the foreground to see gpclient output"
+	@echo "make run     connect in the foreground to see gpclient output"
 	@echo "make down    disconnect"
 	@echo "make check   syntax-check the scripts"
 
 up:
 	bin/gp-connect
 
-debug:
+run:
 	bin/gp-connect --foreground
 
 down:
