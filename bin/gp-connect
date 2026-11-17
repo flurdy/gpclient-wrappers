@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Connect to a GlobalProtect VPN with yuezk's gpclient. Settings come from a config file, see
+# examples/gp.conf.example. Options: --config FILE, --foreground, --dry-run; anything else goes to gpclient.
+set -euo pipefail
+
+GP_HOME=$(dirname "$(dirname "$(realpath "$0")")")
+config=${GP_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/gpclient-wrappers/config}
+foreground=${GP_FOREGROUND:-}
+dry_run=
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+    --config) config=$2; shift 2 ;;
+    --foreground) foreground=1; shift ;;
+    --dry-run) dry_run=1; shift ;;
+    *) break ;;
+    esac
+done
+
+[[ -r $config ]] || { echo "gp-connect: no config at $config" >&2; exit 1; }
+export GP_CONFIG_DIR GP_HOME
+GP_CONFIG_DIR=$(dirname "$(realpath "$config")")
+declare -A from_env
+for v in ${!GP_@}; do from_env[$v]=${!v}; done
+set -a
+# shellcheck source=/dev/null
+source "$config"
+set +a
+for v in "${!from_env[@]}"; do printf -v "$v" %s "${from_env[$v]}"; export "${v?}"; done
+: "${GP_PORTAL:?set GP_PORTAL in $config}"
+
+cmd=(sudo -E gpclient connect)
+case ${GP_HIP:-} in
+'') ;;
+builtin) cmd+=(--hip) ;;
+*)
+    [[ -x $GP_HIP ]] || { echo "gp-connect: GP_HIP is not executable: $GP_HIP" >&2; exit 1; }
+    cmd+=(--hip "$GP_HIP" --hip-user "$USER")
+    ;;
+esac
+[[ -n ${GP_GATEWAY:-} ]] && cmd+=(--gateway "$GP_GATEWAY")
+[[ -z $foreground ]] && cmd+=(--background)
+cmd+=(--browser "${GP_BROWSER:-default}")
+[[ ${GP_DNS_ONLY_LISTED:-1} == 1 ]] && cmd+=(--script "$GP_HOME/bin/gp-dns-script")
+cmd+=(--clean "$@" "$GP_PORTAL")
+
+if [[ -n $dry_run ]]; then
+    printf '%q ' "${cmd[@]}"
+    echo
+else
+    exec "${cmd[@]}"
+fi

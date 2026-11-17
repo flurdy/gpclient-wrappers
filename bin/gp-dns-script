@@ -1,0 +1,20 @@
+#!/bin/sh
+# vpnc-script wrapper for gpclient --script: stock behaviour, then send only the VPN-pushed domains
+# (not "~.", everything) to the VPN's DNS servers. Runs as root, needs systemd-resolved.
+/etc/vpnc/vpnc-script "$@"
+rc=$?
+
+# shellcheck disable=SC2154,SC2086  # reason/TUNDEV come from gpclient; word splitting is intended
+case $reason in
+connect|reconnect)
+    domains=$(resolvectl domain "$TUNDEV" | sed 's/^Link [0-9]* ([^)]*): *//')
+    routes=
+    for d in $domains; do
+        [ "$d" = "~." ] && continue
+        routes="$routes ~${d#\~}"
+    done
+    resolvectl domain "$TUNDEV" $routes
+    resolvectl default-route "$TUNDEV" no
+    ;;
+esac
+exit $rc

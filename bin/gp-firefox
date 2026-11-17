@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Open URLs in one Firefox profile directory; use as GP_BROWSER for the SAML login.
+# New-style profiles have no -P name, so they are opened by path.
+: "${GP_FIREFOX_PROFILE:?set GP_FIREFOX_PROFILE to a Firefox profile directory}"
+exec firefox --profile "$GP_FIREFOX_PROFILE" "$@"
