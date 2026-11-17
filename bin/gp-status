@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Show whether gpclient is running, its tunnel address and DNS routing. Needs no root.
+# Exits 0 when connected, 1 when not.
+set -uo pipefail
+
+pid=$(pgrep -x gpclient | head -1)
+if [[ -z $pid ]]; then
+    echo "gpclient: not running"
+    exit 1
+fi
+echo "gpclient: running (pid $pid)"
+
+tuns=$(ip -o link show type tun | awk -F': ' '{print $2}')
+[[ -n $tuns ]] || { echo "tunnel: none yet"; exit 1; }
+for dev in $tuns; do
+    ip -br addr show dev "$dev"
+    for what in dns domain default-route; do
+        printf '  %-16s%s\n' "$what:" "$(resolvectl "$what" "$dev" 2>/dev/null | sed 's/^[^:]*: *//' | tr -s ' \n' ' ')"
+    done
+done
