@@ -10,11 +10,22 @@ if [[ -z $pid ]]; then
 fi
 echo "gpclient: running (pid $pid)"
 
+cols=${COLUMNS:-$(tput cols 2>/dev/null || echo 80)}
+(( cols > 40 )) || cols=40
+
+# show LABEL VALUE: value in a column, wrapped to the terminal width with a hanging indent
+show() {
+    local pad
+    pad=$(printf '%18s' '')
+    printf '%s\n' "$2" | fmt -w $((cols - 18)) |
+        sed "1s/^/$(printf '  %-16s' "$1:")/; 2,\$s/^/$pad/"
+}
+
 tuns=$(ip -o link show type tun | awk -F': ' '{print $2}')
 [[ -n $tuns ]] || { echo "tunnel: none yet"; exit 1; }
 for dev in $tuns; do
     ip -br addr show dev "$dev" | awk '{$2 = ""; print}'
     for what in dns domain default-route; do
-        printf '  %-16s%s\n' "$what:" "$(resolvectl "$what" "$dev" 2>/dev/null | sed 's/^[^:]*: *//' | tr -s ' \n' ' ')"
+        show "$what" "$(resolvectl "$what" "$dev" 2>/dev/null | sed 's/^[^:]*: *//' | tr -s ' \n' ' ')"
     done
 done
