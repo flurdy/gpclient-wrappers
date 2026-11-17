@@ -3,8 +3,10 @@
 Connecting to a GlobalProtect VPN with [yuezk's gpclient](https://github.com/yuezk/GlobalProtect-openconnect)
 gets long quickly: portal, gateway, SAML browser, HIP report, and a VPN that grabs all your DNS.
 These wrappers keep those settings in environment variables or a small config file, connect in the
-background by default, and send only the domains the VPN pushes to its DNS servers. Linux with
-`systemd-resolved` and `sudo`.
+background by default, and send only the domains the VPN pushes to its DNS servers.
+
+Needs Linux with `systemd-resolved` and `sudo`, plus gpclient itself and `/etc/vpnc/vpnc-script`
+(the `vpnc-scripts` package), which the DNS wrapper calls.
 
 - `bin/gp-connect`: connect; background by default, `--foreground` to see gpclient output.
 - `bin/gp-dns-script`: gpclient `--script` wrapper that limits the VPN's DNS to its own domains.
@@ -30,12 +32,14 @@ Other projects can keep their own config and call `bin/gp-connect --config <file
 ## Configuration
 
 Everything is a `GP_*` variable, set in the environment, in a bash config file, or both. The file
-is `--config FILE`, `$GP_CONFIG`, or `~/.config/gpclient-wrappers/config`, and is optional. Only
+is `--config FILE`, `$GP_CONFIG`, or `$XDG_CONFIG_HOME/gpclient-wrappers/config` (default
+`~/.config/...`), and is optional. Only
 `GP_PORTAL` is required. Variables in the file are exported. `$GP_HOME` is this repo and
 `$GP_CONFIG_DIR` the config's directory, so a config can reference paths relative to itself.
 Variables already set in the environment override the config, so `GP_BROWSER=manual make up` uses
 gpclient's manual browser mode (paste the callback URL into the terminal). `--dry-run` prints the
-command instead of running it; other arguments go straight to `gpclient connect`.
+command instead of running it. The wrapper's own options come first; from the first other argument
+on, everything goes straight to `gpclient connect`.
 
 A fuller config, as a file:
 
@@ -72,9 +76,7 @@ partly canned (for example the firewall entry), so check your employer's policy 
 
 ## Notes
 
-Background mode logs to `/var/log/gpclient.log` (root-readable). `gp-connect` and `gp-dns-script`
-run through `sudo`/root: read any HIP executable you configure first.
-
-## License
-
-MIT, see [LICENSE](LICENSE).
+Background mode logs to `/var/log/gpclient.log` (root-readable). `gp-connect` runs as you and starts
+`gpclient` with `sudo -E`; gpclient then runs `bin/gp-dns-script` as root. The config is sourced as
+bash by `gp-connect`, and a HIP executable runs as your user. Only use a config, scripts and HIP
+executable you trust, and read any you did not write.

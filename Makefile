@@ -1,7 +1,7 @@
 .PHONY: help up run down check
 
 help:
-	@echo "make up      connect in the background (needs ~/.config/gpclient-wrappers/config)"
+	@echo "make up      connect in the background (GP_PORTAL or a config file, see README)"
 	@echo "make run     connect in the foreground to see gpclient output"
 	@echo "make down    disconnect"
 	@echo "make check   syntax-check the scripts"
