@@ -95,6 +95,7 @@ GP_PORTAL=vpn.example.com GP_GATEWAY=gateway.example.com GP_HIP=builtin bin/gp-c
 | `GP_FIREFOX_PROFILE` | none | profile directory for `bin/gp-firefox` |
 | `GP_HIP` | none | `builtin`, or a path to a HIP report executable (run as `$USER`) |
 | `GP_DNS_ONLY_LISTED` | `1` | `1` uses `bin/gp-dns-script`; `0` keeps gpclient's default DNS |
+| `GP_DNS_EXTRA_DOMAINS` | none | extra domains to resolve through the VPN's DNS, comma or space separated (e.g. `example.com,corp.example.org`) |
 | `GP_FOREGROUND` | unset | non-empty is the same as `--foreground` |
 
 ## HIP reports

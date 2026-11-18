@@ -1,6 +1,7 @@
 #!/bin/sh
 # vpnc-script wrapper for gpclient --script: stock behaviour, then send only the VPN-pushed domains
-# (not "~.", everything) to the VPN's DNS servers. Runs as root, needs systemd-resolved.
+# (not "~.", everything) to the VPN's DNS servers. GP_DNS_EXTRA_DOMAINS (comma or space separated)
+# adds domains the VPN does not push. Runs as root, needs systemd-resolved.
 /etc/vpnc/vpnc-script "$@"
 rc=$?
 
@@ -11,6 +12,9 @@ connect|reconnect)
     routes=
     for d in $domains; do
         [ "$d" = "~." ] && continue
+        routes="$routes ~${d#\~}"
+    done
+    for d in $(echo "${GP_DNS_EXTRA_DOMAINS:-}" | tr ',' ' '); do
         routes="$routes ~${d#\~}"
     done
     resolvectl domain "$TUNDEV" $routes
