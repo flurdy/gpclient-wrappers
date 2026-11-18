@@ -61,9 +61,6 @@ The config file is optional. `gp-connect` uses the first of:
 2. `$GP_CONFIG`
 3. `$XDG_CONFIG_HOME/gpclient-wrappers/config` (default `~/.config/gpclient-wrappers/config`)
 
-Its variables are exported. It can use `$GP_HOME` (this repo) and `$GP_CONFIG_DIR` (its own
-directory) to refer to paths relative to itself.
-
 The environment overrides the config, which suits one-off changes:
 
 ```sh
