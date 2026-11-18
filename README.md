@@ -52,13 +52,9 @@ Other projects can keep their own config and call `bin/gp-connect --config <file
 
 ## Configuration
 
-Everything is a `GP_*` variable (see the table below); only `GP_PORTAL` is required. Set them in a
-config file, the environment, or both.
-
-The config file is optional.
-
-Its variables are exported. It can use `$GP_HOME` (this repo) and `$GP_CONFIG_DIR` (its own
-directory) to refer to paths relative to itself.
+Everything is a `GP_*` variable (see the table below); only `GP_PORTAL` is required. Set them in an
+optional config file, the environment, or both. A config can use `$GP_HOME` (this repo) and
+`$GP_CONFIG_DIR` (its own directory) for relative paths.
 
 The environment overrides the config, which suits one-off changes:
 
