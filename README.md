@@ -18,7 +18,6 @@ Needs Linux with `systemd-resolved` and `sudo`, plus gpclient itself and `/etc/v
 
 ```sh
 GP_PORTAL=vpn.example.com make up     # connect in the background; make run stays in the terminal
-make reconnect                        # disconnect, then connect again
 make down                             # disconnect
 make status                           # connected? tunnel and DNS
 ```
