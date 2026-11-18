@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
 # Connect to a GlobalProtect VPN with yuezk's gpclient. Settings come from GP_* environment
-# variables and an optional config file, see README. Options: --config FILE, --foreground, --dry-run;
-# anything else goes to gpclient.
+# variables and an optional config file, see README. Options: --config FILE, --foreground, --reconnect,
+# --dry-run; anything else goes to gpclient.
 set -euo pipefail
 
 GP_HOME=$(dirname "$(dirname "$(realpath "$0")")")
 config=${GP_CONFIG:-}
 foreground=${GP_FOREGROUND:-}
 dry_run=
+reconnect=
 
 while [[ $# -gt 0 ]]; do
     case $1 in
     --config) config=$2; shift 2 ;;
     --foreground) foreground=1; shift ;;
+    --reconnect) reconnect=1; shift ;;
     --dry-run) dry_run=1; shift ;;
     *) break ;;
     esac
@@ -52,9 +54,16 @@ cmd+=(--browser "${GP_BROWSER:-default}")
 [[ ${GP_DNS_ONLY_LISTED:-1} == 1 ]] && cmd+=(--script "$GP_HOME/bin/gp-dns-script")
 cmd+=(--clean "$@" "$GP_PORTAL")
 
+disconnect=(sudo gpclient disconnect --wait 10)
 if [[ -n $dry_run ]]; then
+    [[ -n $reconnect ]] && printf '%q ' "${disconnect[@]}" && echo
     printf '%q ' "${cmd[@]}"
     echo
-else
-    exec "${cmd[@]}"
+    exit
 fi
+[[ -n $reconnect ]] && { "${disconnect[@]}" || true; }
+if pid=$(pgrep -x -o gpclient); then
+    echo "gp-connect: already connected (gpclient pid $pid); reconnect (--reconnect) to replace it" >&2
+    exit 0
+fi
+exec "${cmd[@]}"

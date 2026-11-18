@@ -8,7 +8,8 @@ background by default, and send only the domains the VPN pushes to its DNS serve
 Needs Linux with `systemd-resolved` and `sudo`, plus gpclient itself and `/etc/vpnc/vpnc-script`
 (the `vpnc-scripts` package), which the DNS wrapper calls.
 
-- `bin/gp-connect`: connect; background by default, `--foreground` to see gpclient output.
+- `bin/gp-connect`: connect; background by default, `--foreground` to see gpclient output. If already
+  connected it says so and does nothing; `--reconnect` disconnects first (stuck, or new settings).
 - `bin/gp-dns-script`: gpclient `--script` wrapper that limits the VPN's DNS to its own domains.
 - `bin/gp-firefox`: open the SAML login in a chosen Firefox profile.
 - `bin/gp-status`: show whether it is connected, the tunnel address and its DNS routing; exits 1 when not connected (`make status` ignores that).
@@ -17,6 +18,7 @@ Needs Linux with `systemd-resolved` and `sudo`, plus gpclient itself and `/etc/v
 
 ```sh
 GP_PORTAL=vpn.example.com make up     # connect in the background; make run stays in the terminal
+make reconnect                        # disconnect, then connect again
 make down                             # disconnect
 make status                           # connected? tunnel and DNS
 ```
@@ -39,7 +41,8 @@ is `--config FILE`, `$GP_CONFIG`, or `$XDG_CONFIG_HOME/gpclient-wrappers/config`
 `GP_PORTAL` is required. Variables in the file are exported. `$GP_HOME` is this repo and
 `$GP_CONFIG_DIR` the config's directory, so a config can reference paths relative to itself.
 Variables already set in the environment override the config, so `GP_BROWSER=manual make up` uses
-gpclient's manual browser mode (paste the callback URL into the terminal). `--dry-run` prints the
+gpclient's manual browser mode (paste the callback URL into the terminal), and
+`GP_GATEWAY=other.example.com make reconnect` switches gateway. `--dry-run` prints the
 command instead of running it. The wrapper's own options come first; from the first other argument
 on, everything goes straight to `gpclient connect`.
 
