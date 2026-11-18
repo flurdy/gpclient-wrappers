@@ -15,10 +15,11 @@ Small bash wrappers for connecting a Linux machine to a GlobalProtect VPN with
 - Linux with `systemd-resolved` (the DNS wrapper uses `resolvectl`) and `sudo`.
 - gpclient, from yuezk's GlobalProtect-openconnect.
 - `/etc/vpnc/vpnc-script`, from the `vpnc-scripts` package; `gp-dns-script` wraps it.
-- Firefox, only for `gp-firefox`.
+- A browser for the SAML login. gpclient's `default` opens your usual one, `GP_BROWSER` picks
+  another, and `manual` prints the URL to open yourself. `gp-firefox` adds Firefox profile choice.
 
-Tested on Fedora 44 with gpclient 3.4.0. Other distributions using `systemd-resolved` should work
-but are untested.
+Tested on Fedora 44 with gpclient 3.4.0 and Firefox. Other distributions using `systemd-resolved`
+and other browsers should work but are untested.
 
 ## Quick start
 
