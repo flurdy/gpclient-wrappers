@@ -8,12 +8,6 @@ background by default, and send only the domains the VPN pushes to its DNS serve
 Needs Linux with `systemd-resolved` and `sudo`, plus gpclient itself and `/etc/vpnc/vpnc-script`
 (the `vpnc-scripts` package), which the DNS wrapper calls.
 
-- `bin/gp-connect`: connect; background by default, `--foreground` to see gpclient output. If already
-  connected it says so and does nothing; `--reconnect` disconnects first (stuck, or new settings).
-- `bin/gp-dns-script`: gpclient `--script` wrapper that limits the VPN's DNS to its own domains.
-- `bin/gp-firefox`: open the SAML login in a chosen Firefox profile.
-- `bin/gp-status`: show whether it is connected, the tunnel address and its DNS routing; exits 1 when not connected (`make status` ignores that).
-
 ## Quick start
 
 ```sh
@@ -31,6 +25,17 @@ make up
 ```
 
 Other projects can keep their own config and call `bin/gp-connect --config <file>`.
+
+## Scripts
+
+| Script | Make target | What it does |
+|---|---|---|
+| `bin/gp-connect` | `up`, `run`, `reconnect` | Connect, in the background unless `--foreground`. If already connected it says so and does nothing; `--reconnect` disconnects first. |
+| `bin/gp-status` | `status` | Show whether it is connected, the tunnel address and DNS routing. Exits 1 when not connected (`make status` ignores that). |
+| `bin/gp-dns-script` | — | gpclient `--script` wrapper that limits the VPN's DNS to its own domains. |
+| `bin/gp-firefox` | — | Open the SAML login in a chosen Firefox profile. |
+
+`make down` runs `sudo gpclient disconnect` directly.
 
 ## Configuration
 
