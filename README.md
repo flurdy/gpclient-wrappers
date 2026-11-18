@@ -1,12 +1,24 @@
 # gpclient-wrappers
 
-Connecting to a GlobalProtect VPN with [yuezk's gpclient](https://github.com/yuezk/GlobalProtect-openconnect)
-gets long quickly: portal, gateway, SAML browser, HIP report, and a VPN that grabs all your DNS.
-These wrappers keep those settings in environment variables or a small config file, connect in the
-background by default, and send only the domains the VPN pushes to its DNS servers.
+Small bash wrappers for connecting a Linux machine to a GlobalProtect VPN with
+[yuezk's gpclient](https://github.com/yuezk/GlobalProtect-openconnect).
 
-Needs Linux with `systemd-resolved` and `sudo`, plus gpclient itself and `/etc/vpnc/vpnc-script`
-(the `vpnc-scripts` package), which the DNS wrapper calls.
+- Keep the portal, gateway, SAML browser and HIP report settings in a config file or the
+  environment, instead of on a long command line.
+- Connect, reconnect, disconnect and check status with `make` targets; connecting runs in the
+  background by default.
+- Split DNS: only the domains the VPN pushes resolve through its DNS servers; everything else keeps
+  your normal DNS.
+
+## Requirements
+
+- Linux with `systemd-resolved` (the DNS wrapper uses `resolvectl`) and `sudo`.
+- gpclient, from yuezk's GlobalProtect-openconnect.
+- `/etc/vpnc/vpnc-script`, from the `vpnc-scripts` package; `gp-dns-script` wraps it.
+- Firefox, only for `gp-firefox`.
+
+Tested on Fedora 44 with gpclient 3.4.0. Other distributions using `systemd-resolved` should work
+but are untested.
 
 ## Quick start
 
