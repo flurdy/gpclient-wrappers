@@ -55,11 +55,10 @@ Other projects can keep their own config and call `bin/gp-connect --config <file
 Everything is a `GP_*` variable (see the table below); only `GP_PORTAL` is required. Set them in a
 config file, the environment, or both.
 
-The config file is optional. `gp-connect` uses the first of:
+The config file is optional.
 
-1. `--config FILE`
-2. `$GP_CONFIG`
-3. `$XDG_CONFIG_HOME/gpclient-wrappers/config` (default `~/.config/gpclient-wrappers/config`)
+Its variables are exported. It can use `$GP_HOME` (this repo) and `$GP_CONFIG_DIR` (its own
+directory) to refer to paths relative to itself.
 
 The environment overrides the config, which suits one-off changes:
 
