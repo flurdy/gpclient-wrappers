@@ -11,7 +11,7 @@ Needs Linux with `systemd-resolved` and `sudo`, plus gpclient itself and `/etc/v
 - `bin/gp-connect`: connect; background by default, `--foreground` to see gpclient output.
 - `bin/gp-dns-script`: gpclient `--script` wrapper that limits the VPN's DNS to its own domains.
 - `bin/gp-firefox`: open the SAML login in a chosen Firefox profile.
-- `bin/gp-status`: show whether it is connected, the tunnel address and its DNS routing.
+- `bin/gp-status`: show whether it is connected, the tunnel address and its DNS routing; exits 1 when not connected (`make status` ignores that).
 
 ## Quick start
 

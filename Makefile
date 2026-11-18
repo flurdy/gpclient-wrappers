@@ -17,7 +17,7 @@ down:
 	sudo gpclient disconnect
 
 status:
-	@bin/gp-status
+	@bin/gp-status || true
 
 check:
 	bash -n bin/gp-connect bin/gp-firefox bin/gp-status
