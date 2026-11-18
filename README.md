@@ -55,9 +55,7 @@ Other projects can keep their own config and call `bin/gp-connect --config <file
 Everything is a `GP_*` variable (see the table below); only `GP_PORTAL` is required. Set them in a
 config file, the environment, or both.
 
-The config file is optional. `gp-connect` loads it with bash's `source`, so it uses shell syntax
-(`NAME=value`, quotes around spaces, `$HOME`), and any command in it runs as you. It uses the
-first of:
+The config file is optional. `gp-connect` uses the first of:
 
 1. `--config FILE`
 2. `$GP_CONFIG`
