@@ -52,16 +52,32 @@ Other projects can keep their own config and call `bin/gp-connect --config <file
 
 ## Configuration
 
-Everything is a `GP_*` variable, set in the environment, in a bash config file, or both. The file
-is `--config FILE`, `$GP_CONFIG`, or `$XDG_CONFIG_HOME/gpclient-wrappers/config` (default
-`~/.config/...`), and is optional. Only
-`GP_PORTAL` is required. Variables in the file are exported. `$GP_HOME` is this repo and
-`$GP_CONFIG_DIR` the config's directory, so a config can reference paths relative to itself.
-Variables already set in the environment override the config, so `GP_BROWSER=manual make up` uses
-gpclient's manual browser mode (paste the callback URL into the terminal), and
-`GP_GATEWAY=other.example.com make reconnect` switches gateway. `--dry-run` prints the
-command instead of running it. The wrapper's own options come first; from the first other argument
-on, everything goes straight to `gpclient connect`.
+Everything is a `GP_*` variable (see the table below); only `GP_PORTAL` is required. Set them in a
+config file, the environment, or both.
+
+The config file is optional and is bash. `gp-connect` uses the first of:
+
+1. `--config FILE`
+2. `$GP_CONFIG`
+3. `$XDG_CONFIG_HOME/gpclient-wrappers/config` (default `~/.config/gpclient-wrappers/config`)
+
+Its variables are exported. It can use `$GP_HOME` (this repo) and `$GP_CONFIG_DIR` (its own
+directory) to refer to paths relative to itself.
+
+The environment overrides the config, which suits one-off changes:
+
+```sh
+GP_BROWSER=manual make up                     # paste the callback URL into the terminal
+GP_GATEWAY=other.example.com make reconnect   # switch gateway
+```
+
+`gp-connect` options come first; from the first other argument on, everything goes to
+`gpclient connect`:
+
+- `--config FILE`: use this config file.
+- `--foreground`: stay in the terminal and show gpclient output.
+- `--reconnect`: disconnect first.
+- `--dry-run`: print the command instead of running it.
 
 A fuller config, as a file:
 
