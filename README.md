@@ -45,7 +45,7 @@ Other projects can keep their own config and call `bin/gp-connect --config <file
 |---|---|---|
 | `bin/gp-connect` | `up`, `run`, `reconnect` | Connect, in the background unless `--foreground`. If already connected it says so and does nothing; `--reconnect` disconnects first. |
 | `bin/gp-status` | `status` | Show whether it is connected, the tunnel address and DNS routing. Exits 1 when not connected (`make status` ignores that). |
-| `bin/gp-dns-script` | — | gpclient `--script` wrapper that limits the VPN's DNS to its own domains. |
+| `bin/gp-dns-script` | — | gpclient `--script` wrapper that limits the VPN's DNS to its own domains and adds `GP_ROUTE_EXTRA` routes. |
 | `bin/gp-firefox` | — | Open the SAML login in a chosen Firefox profile. |
 
 `make down` runs `sudo gpclient disconnect` directly.
@@ -96,14 +96,31 @@ GP_PORTAL=vpn.example.com GP_GATEWAY=gateway.example.com GP_HIP=builtin bin/gp-c
 | `GP_HIP` | none | `builtin`, or a path to a HIP report executable (run as `$USER`) |
 | `GP_DNS_ONLY_LISTED` | `1` | `1` uses `bin/gp-dns-script`; `0` keeps gpclient's default DNS |
 | `GP_DNS_EXTRA_DOMAINS` | none | extra domains to resolve through the VPN's DNS, comma or space separated (e.g. `example.com,corp.example.org`) |
+| `GP_ROUTE_EXTRA` | none | extra IPv4 networks to route through a split tunnel, comma or space separated CIDRs; needs `GP_DNS_ONLY_LISTED=1` (see below) |
 | `GP_FOREGROUND` | unset | non-empty is the same as `--foreground` |
 
 ## HIP reports
 
-Some gateways reject a client without a host information profile. If gpclient's built-in report
-(`GP_HIP=builtin`) is not accepted, [bechampion/gohip](https://github.com/bechampion/gohip) is a
-separate Go tool that generates one; build it and point `GP_HIP` at the binary. Its report is
-partly canned (for example the firewall entry), so check your employer's policy first.
+Some gateways reject a client without a host information profile. With gpclient 3.x the built-in
+report (`GP_HIP=builtin`) is often enough. If it is not accepted,
+[bechampion/gohip](https://github.com/bechampion/gohip) is a separate Go tool that generates one;
+build it and point `GP_HIP` at the binary. Its report is partly canned (for example the firewall
+entry), so check your employer's policy first.
+
+## Extra routes
+
+A split gateway only routes its own networks through the tunnel. Some services check where a login
+comes from: Microsoft Entra (for example the `teams` CLI) can reject a sign-in from your home
+connection. `GP_ROUTE_EXTRA` sends those networks through the tunnel too; it is ignored on a full
+tunnel. For Entra, the IPv4 ranges of Microsoft's
+[endpoint 56](https://learn.microsoft.com/en-us/microsoft-365/enterprise/urls-and-ip-address-ranges):
+
+```sh
+GP_ROUTE_EXTRA=20.20.32.0/19,20.190.128.0/18,20.231.128.0/19,40.126.0.0/18
+```
+
+Microsoft changes these ranges occasionally. IPv6 ranges are not routed, so this assumes the login
+goes over IPv4.
 
 ## Notes
 

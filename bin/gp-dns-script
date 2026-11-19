@@ -1,7 +1,19 @@
 #!/bin/sh
 # vpnc-script wrapper for gpclient --script: stock behaviour, then send only the VPN-pushed domains
 # (not "~.", everything) to the VPN's DNS servers. GP_DNS_EXTRA_DOMAINS (comma or space separated)
-# adds domains the VPN does not push. Runs as root, needs systemd-resolved.
+# adds domains the VPN does not push. GP_ROUTE_EXTRA (IPv4 CIDRs, comma or space separated) adds
+# routes through the tunnel when the gateway is split. Runs as root, needs systemd-resolved.
+
+# shellcheck disable=SC2154  # CISCO_SPLIT_INC comes from gpclient
+if [ "${CISCO_SPLIT_INC:-0}" -gt 0 ]; then
+    for r in $(echo "${GP_ROUTE_EXTRA:-}" | tr ',' ' '); do
+        case $r in */*) ;; *) r=$r/32 ;; esac
+        export "CISCO_SPLIT_INC_${CISCO_SPLIT_INC}_ADDR=${r%/*}" "CISCO_SPLIT_INC_${CISCO_SPLIT_INC}_MASKLEN=${r#*/}"
+        CISCO_SPLIT_INC=$((CISCO_SPLIT_INC + 1))
+    done
+    export CISCO_SPLIT_INC
+fi
+
 /etc/vpnc/vpnc-script "$@"
 rc=$?
 
