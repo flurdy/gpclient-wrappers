@@ -115,6 +115,8 @@ entry), so check your employer's policy first.
 
 With `GP_COOKIE_CACHE=1`, gpclient keeps the portal cookie in `/run/gpclient-wrappers/cookie.json`
 (root-only, gone after a reboot). Reconnects then skip the SAML login until the portal session ends.
+This only works when the portal hands out a reusable cookie: if `/var/log/gpclient.log` never says
+`Saved portal cookie cache` (and the login shows `portal_userauthcookie_len=0`), it does not.
 A cached login goes back to the gateway it last used, whatever `GP_GATEWAY` says, so switch gateways
 with `bin/gp-connect --reconnect --fresh`.
 
