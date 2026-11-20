@@ -46,7 +46,7 @@ Other projects can keep their own config and call `bin/gp-connect --config <file
 | Script | Make target | What it does |
 |---|---|---|
 | `bin/gp-connect` | `up`, `run`, `reconnect` | Connect, in the background unless `--foreground`. If already connected it says so and does nothing; `--reconnect` disconnects first. |
-| `bin/gp-status` | `status` | Show whether it is connected, the tunnel address and DNS routing. Exits 1 when not connected (`make status` ignores that). |
+| `bin/gp-status` | `status` | Show whether it is connected, when the session ends, the tunnel address and DNS routing. Exits 1 when not connected (`make status` ignores that). |
 | `bin/gp-dns-script` | — | gpclient `--script` wrapper that limits the VPN's DNS to its own domains and adds `GP_ROUTE_EXTRA` routes. |
 | `bin/gp-firefox` | — | Open the SAML login in a chosen Firefox profile. |
 
@@ -62,7 +62,7 @@ The environment overrides the config, which suits one-off changes:
 
 ```sh
 GP_BROWSER=manual make up                     # paste the callback URL into the terminal
-GP_GATEWAY=other.example.com make reconnect   # switch gateway
+GP_GATEWAY=other.example.com make reconnect   # switch gateway (login cache: see below)
 ```
 
 `gp-connect` options come first; from the first other argument on, everything goes to
@@ -71,6 +71,7 @@ GP_GATEWAY=other.example.com make reconnect   # switch gateway
 - `--config FILE`: use this config file.
 - `--foreground`: stay in the terminal and show gpclient output.
 - `--reconnect`: disconnect first.
+- `--fresh`: forget the cached login (see below).
 - `--dry-run`: print the command instead of running it.
 
 A fuller config, as a file:
@@ -99,6 +100,7 @@ GP_PORTAL=vpn.example.com GP_GATEWAY=gateway.example.com GP_HIP=builtin bin/gp-c
 | `GP_DNS_ONLY_LISTED` | `1` | `1` uses `bin/gp-dns-script`; `0` keeps gpclient's default DNS |
 | `GP_DNS_EXTRA_DOMAINS` | none | extra domains to resolve through the VPN's DNS, comma or space separated (e.g. `example.com,corp.example.org`) |
 | `GP_ROUTE_EXTRA` | none | extra IPv4 networks to route through a split tunnel, comma or space separated CIDRs; needs `GP_DNS_ONLY_LISTED=1` (see below) |
+| `GP_COOKIE_CACHE` | none | `1` reuses the portal login on reconnect (see below) |
 | `GP_FOREGROUND` | unset | non-empty is the same as `--foreground` |
 
 ## HIP reports
@@ -108,6 +110,20 @@ report (`GP_HIP=builtin`) is often enough. If it is not accepted,
 [bechampion/gohip](https://github.com/bechampion/gohip) is a separate Go tool that generates one;
 build it and point `GP_HIP` at the binary. Its report is partly canned (for example the firewall
 entry), so check your employer's policy first.
+
+## Login cache
+
+With `GP_COOKIE_CACHE=1`, gpclient keeps the portal cookie in `/run/gpclient-wrappers/cookie.json`
+(root-only, gone after a reboot). Reconnects then skip the SAML login until the portal session ends.
+A cached login goes back to the gateway it last used, whatever `GP_GATEWAY` says, so switch gateways
+with `bin/gp-connect --reconnect --fresh`.
+
+## Session end
+
+Portal sessions end after a fixed time. `make status` shows when, from the `user_expires=` line in
+`/var/log/gpclient.log`. That log is root-only and only written in background mode, so the end
+shows only while `sudo` needs no password (for example just after `make up`) and never for
+`make run`.
 
 ## Extra routes
 

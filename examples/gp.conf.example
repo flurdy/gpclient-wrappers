@@ -6,4 +6,5 @@ GP_PORTAL=vpn.example.com                     # required (can also come from the
 #GP_BROWSER=$GP_HOME/bin/gp-firefox           # SAML browser; default: system default browser
 #GP_FIREFOX_PROFILE=$HOME/.mozilla/firefox/xxxx.profile   # used by gp-firefox
 #GP_HIP=builtin                               # or a path to a HIP report executable
+#GP_COOKIE_CACHE=1                            # reuse the portal login on reconnect
 #GP_DNS_ONLY_LISTED=0                         # 1 (default): only domains the VPN pushes use its DNS

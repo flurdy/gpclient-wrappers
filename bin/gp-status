@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Show whether gpclient is running, its tunnel address and DNS routing. Needs no root.
+# Show whether gpclient is running, its session end, tunnel address and DNS routing. Needs no root;
+# the session end comes from the root-only background log, read with sudo when it needs no password.
 # Exits 0 when connected, 1 when not.
 set -uo pipefail
 
@@ -22,6 +23,18 @@ fi
 show gpclient running ""
 show pid "$pid"
 show uptime "$(ps -o etime= -p "$pid" | tr -d ' ')"
+
+log=/var/log/gpclient.log
+grep_log=(grep)
+[[ -r $log ]] || grep_log=(sudo -n grep)
+now=$(date +%s)
+if expires=$("${grep_log[@]}" -o 'user_expires=[0-9]\+' "$log" 2>/dev/null) &&
+    expires=${expires##*=} && (( expires > now )); then
+    left=$((expires - now))
+    show "session end" "$(date -d "@$expires" '+%a %H:%M') (in $((left / 3600))h $((left % 3600 / 60))m)"
+elif [[ -e $log && ! -r $log ]] && ! sudo -n true 2>/dev/null; then
+    show "session end" "unknown, $log needs sudo"
+fi
 
 tuns=$(ip -o link show type tun | awk -F': ' '{print $2}')
 [[ -n $tuns ]] || { show tunnel "none yet" ""; exit 1; }
