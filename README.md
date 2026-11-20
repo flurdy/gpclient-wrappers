@@ -17,6 +17,8 @@ Small bash wrappers for connecting a Linux machine to a GlobalProtect VPN with
 - `/etc/vpnc/vpnc-script`, from the `vpnc-scripts` package; `gp-dns-script` wraps it.
 - A browser for the SAML login. gpclient's `default` opens your usual one, `GP_BROWSER` picks
   another, and `manual` prints the URL to open yourself. `gp-firefox` adds Firefox profile choice.
+  Alternatively, make the browser picker [Silo](https://github.com/no-faff/Silo) your default
+  browser and keep `default`: its "always" rule sends the login to the same profile every time.
 
 Tested on Fedora 44 with gpclient 3.4.0 and Firefox. Other distributions using `systemd-resolved`
 and other browsers should work but are untested.
