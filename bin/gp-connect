@@ -55,6 +55,7 @@ esac
 [[ -z $foreground ]] && cmd+=(--background)
 cmd+=(--browser "${GP_BROWSER:-default}")
 [[ ${GP_COOKIE_CACHE:-} == 1 ]] && cmd+=(--cookie-cache="$cookie_cache")
+[[ ${GP_NO_DTLS:-} == 1 ]] && cmd+=(--no-dtls)
 [[ ${GP_DNS_ONLY_LISTED:-1} == 1 ]] && cmd+=(--script "$GP_HOME/bin/gp-dns-script")
 cmd+=(--clean "$@" "$GP_PORTAL")
 

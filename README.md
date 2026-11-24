@@ -101,6 +101,7 @@ GP_PORTAL=vpn.example.com GP_GATEWAY=gateway.example.com GP_HIP=builtin bin/gp-c
 | `GP_DNS_EXTRA_DOMAINS` | none | extra domains to resolve through the VPN's DNS, comma or space separated (e.g. `example.com,corp.example.org`) |
 | `GP_ROUTE_EXTRA` | none | extra IPv4 networks to route through a split tunnel, comma or space separated CIDRs; needs `GP_DNS_ONLY_LISTED=1` (see below) |
 | `GP_COOKIE_CACHE` | none | `1` reuses the portal login on reconnect (see below) |
+| `GP_NO_DTLS` | none | `1` skips the ESP/DTLS transport and tunnels over HTTPS only (`--no-dtls`); use it when the log shows `ESP receive error: Message too long` and traffic stalls until gpclient falls back to HTTPS |
 | `GP_FOREGROUND` | unset | non-empty is the same as `--foreground` |
 
 ## HIP reports
