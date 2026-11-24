@@ -124,9 +124,10 @@ with `bin/gp-connect --reconnect --fresh`.
 ## Session end
 
 Portal sessions end after a fixed time. `make status` shows when, from the `user_expires=` line in
-`/var/log/gpclient.log`. That log is root-only and only written in background mode, so the end
-shows only while `sudo` needs no password (for example just after `make up`) and never for
-`make run`.
+`/var/log/gpclient.log`. That log is root-only and only written in background mode, so right after
+connecting, while `sudo` is still cached, `gp-connect` copies the end to
+`$XDG_RUNTIME_DIR/gpclient-wrappers/session-end` for `make status` to read without root. Without
+that file, the end shows only while `sudo` needs no password; after `make run` it never shows.
 
 ## Extra routes
 

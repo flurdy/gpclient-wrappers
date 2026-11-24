@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Show whether gpclient is running, its session end, tunnel address and DNS routing. Needs no root;
-# the session end comes from the root-only background log, read with sudo when it needs no password.
+# the session end comes from the file gp-connect saves, else the root-only log via passwordless sudo.
 # Exits 0 when connected, 1 when not.
 set -uo pipefail
 
@@ -25,11 +25,19 @@ show pid "$pid"
 show uptime "$(ps -o etime= -p "$pid" | tr -d ' ')"
 
 log=/var/log/gpclient.log
-grep_log=(grep)
-[[ -r $log ]] || grep_log=(sudo -n grep)
+session_end=${XDG_RUNTIME_DIR:-$HOME/.cache}/gpclient-wrappers/session-end
+started=$(date -d "$(ps -o lstart= -p "$pid")" +%s)
 now=$(date +%s)
-if expires=$("${grep_log[@]}" -o 'user_expires=[0-9]\+' "$log" 2>/dev/null) &&
-    expires=${expires##*=} && (( expires > now )); then
+expires=
+if [[ -r $session_end ]] && (( $(stat -c %Y "$session_end") >= started )); then
+    expires=$(<"$session_end")
+else
+    grep_log=(grep)
+    [[ -r $log ]] || grep_log=(sudo -n grep)
+    expires=$("${grep_log[@]}" -o 'user_expires=[0-9]\+' "$log" 2>/dev/null) || true
+    expires=${expires##*=}
+fi
+if [[ $expires =~ ^[0-9]+$ ]] && (( expires > now )); then
     left=$((expires - now))
     show "session end" "$(date -d "@$expires" '+%a %H:%M') (in $((left / 3600))h $((left % 3600 / 60))m)"
 elif [[ -e $log && ! -r $log ]] && ! sudo -n true 2>/dev/null; then

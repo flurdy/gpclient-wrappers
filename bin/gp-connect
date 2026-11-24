@@ -74,4 +74,24 @@ if pid=$(pgrep -x -o gpclient); then
     echo "gp-connect: already connected (gpclient pid $pid); reconnect (--reconnect) to replace it" >&2
     exit 0
 fi
-exec "${cmd[@]}"
+[[ -n $foreground ]] && exec "${cmd[@]}"
+
+# Background: once gpclient returns, sudo is still cached, so copy the session end from the root-only
+# log into a file gp-status can read without root. Only lines written after this start count.
+log=/var/log/gpclient.log
+session_end=${XDG_RUNTIME_DIR:-$HOME/.cache}/gpclient-wrappers/session-end
+offset=$(stat -c %s "$log" 2>/dev/null || echo 0)
+rm -f "$session_end"
+"${cmd[@]}"
+(
+    for _ in {1..30}; do
+        (( $(stat -c %s "$log" 2>/dev/null || echo 0) >= offset )) || offset=0
+        if expires=$(sudo -n tail -c +$((offset + 1)) "$log" | grep -o 'user_expires=[0-9]\+' | tail -1) &&
+            [[ -n $expires ]]; then
+            mkdir -p "$(dirname "$session_end")"
+            echo "${expires##*=}" >"$session_end"
+            exit
+        fi
+        sleep 1
+    done
+) >/dev/null 2>&1 &
